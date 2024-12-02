@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,6 +18,7 @@ public class PlayerController : MonoBehaviour
     public Transform feetPos;
     public float checkRadius;
     public LayerMask whatIsGround;
+    public float HP;
 
     private Animator anim;
 
@@ -64,6 +67,11 @@ public class PlayerController : MonoBehaviour
         {
             anim.SetBool("isJumping", true);
         }
+
+        if (HP <- 0)
+        {
+            Application.LoadLevel(Application.loadedLevel);
+        }
     }
 
     void Flip()
@@ -72,5 +80,10 @@ public class PlayerController : MonoBehaviour
         Vector3 Scaler = transform.localScale;
         Scaler.x *= -1;
         transform.localScale = Scaler;
+    }
+
+     void OnCollisionEnter2D(Collision2D collision) {
+        if(collision.gameObject.tag == "Enemy")
+        HP -= 10;
     }
 }

@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
     public float speed;
+    public float normalSpeed;
     public float jumpForce;
     private float moveInput;
 
@@ -24,27 +26,15 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        speed = 0f;
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
 
     private void FixedUpdate()
     {
-        moveInput = Input.GetAxis("Horizontal");
-        rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
-        if(facingRight == false && moveInput > 0)
-        {
-            Flip();
-        }
-        else if(facingRight == true && moveInput < 0)
-        {
-            Flip();
-        }
-        if(moveInput == 0)
-        {
-            anim.SetBool("isRunning", false);
-        }
-        else
+        rb.velocity = new Vector2(speed, rb.velocity.y);
+        if(speed != 0f)
         {
             anim.SetBool("isRunning", true);
         }
@@ -53,11 +43,6 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, whatIsGround);
-        if(isGrounded == true && Input.GetKeyDown(KeyCode.Space))
-        {
-            rb.velocity = Vector2.up * jumpForce;
-            anim.SetTrigger("takeOf");
-        }
 
         if(isGrounded == true)
         {
@@ -74,6 +59,39 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnJumpButtonDown()
+    {
+        if(isGrounded == true)
+        {
+            rb.velocity = Vector2.up * jumpForce;
+            anim.SetTrigger("takeOf");
+        }
+    }
+
+    public void OnLeftButtonDown()
+    {
+        if(speed >= 0f)
+        {
+            speed = -normalSpeed;
+            transform.eulerAngles = new Vector3(0, 180, 0);
+        }
+    }
+
+    public void OnRightButtonDown()
+    {
+        if(speed <= 0f)
+        {
+            speed = normalSpeed;
+            transform.eulerAngles = new Vector3(0, 0, 0);
+        }
+    }
+
+    public void OnButtonUp()
+    {
+        speed = 0f;
+        anim.SetBool("isRunning", false);
+    }
+
     void Flip()
     {
         facingRight = !facingRight;
@@ -82,8 +100,8 @@ public class PlayerController : MonoBehaviour
         transform.localScale = Scaler;
     }
 
-     void OnCollisionEnter2D(Collision2D collision) {
-        if(collision.gameObject.tag == "Enemy")
+     private void OnCollisionEnter2D(Collision2D collision2D) {
+        if(collision2D.gameObject.tag == "Enemy")
         HP -= 12;
-    }
+     }
 }
